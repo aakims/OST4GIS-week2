@@ -28,11 +28,25 @@
 
     Let's consider a marker for a single restaurant point location. We could store information about that marker as an array ([element1, element2, element3...]). Your point location array should contain the following three elements in this order: 1. lat, 2. lng, 3. label.
 
+var element1 = [39.949075, -75.214651, "Aksum"];
+var element2 = [39.928962, -75.164714, "Bing Bing Dim Sum"];
+var element3 = [39.945291, -75.177148, "Honey's Sit 'N Eat"];
+
     Create an array of arrays (an array that contains multiple arrays) to represent every restaurant in your restaurant data. Save this as variable "restaurantData".
+
+var restaurantData = [element1, element2, element3];
 
     ## Task 2: Process Data
 
     Create a marker for each element in "restaurantData". Your final code should only include "L.marker" one time.
+
+    var addMarker = (element) => {
+    L.marker([element[0],element[1]].addTo(map).bindPopup(element[2]));
+  }
+
+    for (e = 0; e <= 3; e++) {
+    addMarker(restaurantData[e]);
+  }
 
     ## Task 3: Add Two Additional Markers
 
@@ -63,9 +77,20 @@
 
     ===================== */
 
-    L.marker([0, 0]).addTo(map);
-    L.marker([0, 0]).addTo(map);
-    L.marker([0, 0]).addTo(map);
+    var element1 = [39.949075, -75.214651, "Aksum"];
+    var element2 = [39.928962, -75.164714, "Bing Bing Dim Sum"];
+    var element3 = [39.945291, -75.177148, "Honey's Sit 'N Eat"];
+
+    var restaurantData = [element1, element2, element3];
+
+    var addMarker = (element) => {
+
+    return L.marker([element(0),element(1)].addTo(map).bindPopup(element(2)))
+  };
+
+    for (e = 0; e <= 3; e++) {
+    addMarker(restaurantData[e]);
+  }
 
     /* =====================
 

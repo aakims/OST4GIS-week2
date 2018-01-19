@@ -50,17 +50,51 @@
       ===================== */
 
       // Store sum you compute in this variable:
-      var yourSum = 0;
+      var mySum = 0;
 
       // Refactor the work above into a few different functions that are reusable to the extent that you can
-      for (var i = 0; i < theArray.length, i++) { /* Do stuff here */ }
+      for (var i = 0; i < theArray.length; i++) {
+        var arrayValue = theArray[i];
+        switch (typeof arrayValue) {
+          case 'string':
+            mySum = mySum + arrayValue.length;
+            break;
+          case 'number':
+            mySum = mySum + arrayValue;
+            break;
+          defalut:
+            console.log("Not sure how to proceed with value:", arrayValue);
+            break;
+        }
+      }
+
+      var mySum2 = 0;
+
+      var ifString = (arrayValue) => {
+        mySum2 = mySum2 + arrayValue.length;
+      }
+
+      var ifNum = (arrayValue) => {
+        mySum2 = mySum2 + arrayValue;
+      }
+
+      var ifOther = (arrayValue) => {
+        console.log("Not sure how to proceed with value:", arrayValue);
+      }
+
+      for (var j = 0; j < theArray.length; j++) {
+        var arrayValue = theArray[j];
+
+        }
+      }
+
 
       /* =====================
 
       End code
 
       ===================== */
-      console.log("Success: ", yourSum === 169)
+      console.log("Success: ", mySum === 169)
     </script>
   </body>
 </html>
