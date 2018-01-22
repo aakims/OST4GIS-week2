@@ -35,11 +35,11 @@
       for (var i = 0; i < theArray.length; i++) {
         var arrayValue = theArray[i];
         if (typeof arrayValue === 'string') {         // String case
-          exampleSum = exampleSum + arrayValue.length
+          exampleSum = exampleSum + arrayValue.length;
         } else if (typeof arrayValue === 'number') {  // Number case
-          exampleSum = exampleSum + arrayValue
+          exampleSum = exampleSum + arrayValue;
         } else {                                      // Otherwise
-          console.log("Not sure how to proceed with value:", arrayValue)
+          console.log("Not sure how to proceed with value:", arrayValue);
         }
       }
 
@@ -50,51 +50,72 @@
       ===================== */
 
       // Store sum you compute in this variable:
-      var mySum = 0;
+      var altSum = 0;
 
       // Refactor the work above into a few different functions that are reusable to the extent that you can
-      for (var i = 0; i < theArray.length; i++) {
-        var arrayValue = theArray[i];
+
+      // using arrow functions
+      var ifStringA = () => {
+        altSum = altSum + arrayValue.length;
+      };
+
+      var ifNumberA = () => {
+        altSum = altSum + arrayValue;
+      };
+
+      var ifOtherA = () => {
+        console.log("Not sure how to proceed with value:", arrayValue);
+      };
+
+      for (j = 0; j < theArray.length; j++) {
+        var arrayValue = theArray[j];
+        if (typeof arrayValue === 'string') {
+          ifStringA();
+        }
+        else if (typeof arrayValue === 'number') {
+          ifNumberA();
+        }
+        else {
+          ifOtherA();
+        }
+      }
+
+      // using function declaration + switch
+
+      var altSum2 = 0;
+
+      var ifString = function () {altSum2 = altSum2 + arrayValue.length;};
+
+      var ifNum = function () {altSum2 = altSum2 + arrayValue;};
+      var ifOther = function () {console.log('Not sure how to proceed with value:', arrayValue);};
+
+
+      for (var a = 0; a < theArray.length; a++) {
+        var arrayValue = theArray[a];
         switch (typeof arrayValue) {
           case 'string':
-            mySum = mySum + arrayValue.length;
+            ifString();
             break;
           case 'number':
-            mySum = mySum + arrayValue;
+            ifNum();
             break;
-          defalut:
-            console.log("Not sure how to proceed with value:", arrayValue);
+          default:
+            ifOther();
             break;
         }
       }
-
-      var mySum2 = 0;
-
-      var ifString = (arrayValue) => {
-        mySum2 = mySum2 + arrayValue.length;
-      }
-
-      var ifNum = (arrayValue) => {
-        mySum2 = mySum2 + arrayValue;
-      }
-
-      var ifOther = (arrayValue) => {
-        console.log("Not sure how to proceed with value:", arrayValue);
-      }
-
-      for (var j = 0; j < theArray.length; j++) {
-        var arrayValue = theArray[j];
-
-        }
-      }
-
 
       /* =====================
 
       End code
 
       ===================== */
-      console.log("Success: ", mySum === 169)
+
+      console.log("Success: ", altSum === 169);
+      console.log("Success: ", altSum2 === 169);
+      console.log("Success: ", altSum === 169 && altSum2 === 169);
+      // (altSum === altSum2 === 169) returns false; use &&
+
     </script>
   </body>
 </html>

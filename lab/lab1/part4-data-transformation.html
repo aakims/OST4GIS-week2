@@ -39,8 +39,6 @@
 
     We are only interested in bike share stations with more than 20 docks. Programmatically create a new array, variable "dataFiltered" that only contains locations with more than 20 docks.
 
-
-
     ## Add Markers to the map
 
     Loop through this filtered array, adding all markers to the map.
@@ -53,7 +51,23 @@
 
     ===================== */
 
-    var data = bikeArrayClean;
+    var data = bikeArrayDirty;
+
+    /* =====================
+
+    Start code to clean data
+
+    ===================== */
+
+
+
+    /* =====================
+
+    End code to clean data
+
+    ===================== */
+
+
 
     /* =====================
 
@@ -62,17 +76,33 @@
     ===================== */
 
 
+    //declare an empty array
     var filteredData = [];
 
-    for (var i = 0; i < bikeArrayClean.length; i++) {
-      twentyPlus = (bikeArrayClean[i])[3];
-      //console.log(twentyPlus)
-      if (twentyPlus > 20) {
-      filteredData.push(bikeArrayClean[i]);
+    for (var b = 0; b < bikeArrayClean.length; b++) {
+      // store the number of bikes at each station as bikeCount
+      bikeCount = (bikeArrayClean[b])[3];
+      //console.log(bikeCount);
+      // filter for those that have more than 20
+      if (bikeCount > 20) {
+        filteredData.push(bikeArrayClean[b]); // add to the array
       }
-      }
+    }
 
-    //console.log(filteredData);
+    // function to filter data (lab2-2)
+
+    var filteredData2 = [];
+
+    var filterData = function (dataset) {
+      for (var c = 0; c < dataset.length; c++) {
+        if (dataset[c][3] > 20) {
+          filteredData2.push(dataset[c]);
+        }
+      }
+      return filteredData2;
+    };
+
+    console.log(filterData(bikeArrayClean));
 
     /* =====================
 
@@ -102,7 +132,6 @@
     for (s = 0; s < filteredData.length; s++) {
       L.marker([filteredData[s][1], filteredData[s][0]]).addTo(map);
     }
-
 
     /* =====================
 
