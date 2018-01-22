@@ -59,6 +59,48 @@
 
     ===================== */
 
+    // 1) choose those array with at least 4 elements
+    // 2) examine the selected arrays and decide what needs extra filtering
+
+    // declare a new array promisingData
+    var promisingData = [];
+
+    var cleanDataset = function (dirtyDataset) {
+
+      for (var dataArrayIndex = 0; dataArrayIndex < dirtyDataset.length; dataArrayIndex++) {
+        if (dirtyDataset[dataArrayIndex].length >=4) {
+          for (var arrayStringIndex = 0; arrayStringIndex < dirtyDataset[dataArrayIndex].length; arrayStringIndex++) {
+            if (dirtyDataset[dataArrayIndex][arrayStringIndex].includes('stations')) {
+              //console.log(dirtyDataset[dataArrayIndex][arrayStringIndex]);
+
+              dirtyDataset[dataArrayIndex][arrayStringIndex] = dirtyDataset[dataArrayIndex][arrayStringIndex].replace(' stations', '');
+
+              promisingData.push(dirtyDataset[dataArrayIndex]);
+              //console.log(dirtyDataset[dataArrayIndex] + ' has been added to promisingData')
+            }
+          }
+        }
+      }
+
+      // clean the array with extra element (specific target)
+      for (var selectedArrayIndex = 0; selectedArrayIndex < promisingData.length; selectedArrayIndex++) {
+        if (promisingData[selectedArrayIndex].length > 4) {
+          promisingData[selectedArrayIndex] = promisingData[selectedArrayIndex].slice(1,5);
+          console.log('changed dataset: ' + promisingData[selectedArrayIndex]);
+        }
+      }
+
+      console.log('Total ' + promisingData.length + ' arrays selected from ' + dirtyDataset.length);
+
+    }
+
+    cleanDataset(data);
+
+    data = promisingData;
+    console.log(data);
+    console.log(bikeArrayClean);
+    console.log(data.length === bikeArrayClean.length);
+    // TODO: seems like bikeArrayClean did not exclude the incomplete arrays from biekArrayDirty, but rather provided more info to complete them?
 
 
     /* =====================
@@ -79,30 +121,37 @@
     //declare an empty array
     var filteredData = [];
 
-    for (var b = 0; b < bikeArrayClean.length; b++) {
+    for (var stationIndex = 0; stationIndex < data.length; stationIndex++) {
       // store the number of bikes at each station as bikeCount
-      bikeCount = (bikeArrayClean[b])[3];
+      bikeCount = (data[stationIndex])[3];
       //console.log(bikeCount);
       // filter for those that have more than 20
       if (bikeCount > 20) {
-        filteredData.push(bikeArrayClean[b]); // add to the array
+        filteredData.push(data[stationIndex]); // add to the array
       }
     }
+
+    console.log('filteredData without a function: ');
+    console.log(filteredData);
 
     // function to filter data (lab2-2)
 
     var filteredData2 = [];
 
-    var filterData = function (dataset) {
-      for (var c = 0; c < dataset.length; c++) {
-        if (dataset[c][3] > 20) {
-          filteredData2.push(dataset[c]);
+    var filterData = function (datasetToFilter) {
+      for (var toFilterIndex = 0; toFilterIndex < datasetToFilter.length; toFilterIndex++) {
+        if (datasetToFilter[toFilterIndex][3] > 20) {
+          filteredData2.push(datasetToFilter[toFilterIndex]);
         }
       }
       return filteredData2;
     };
 
-    console.log(filterData(bikeArrayClean));
+    console.log('filteredData2 by a function: ');
+    console.log(filterData(data));
+
+    console.log('manual filter and functional filter agreement: ' + (filteredData === filteredData2));
+    //TODO: why does this return false? How do I compare two datasets?
 
     /* =====================
 
@@ -122,6 +171,34 @@
       maxZoom: 20,
       ext: 'png'
     }).addTo(map);
+
+
+    /* =====================
+
+    Start code to make leaflet objects
+    using the filtered data
+
+    ===================== */
+
+    data = filteredData2;
+
+    var turnToObjects = function (stationInfoSet) {
+      for (stationIndex = 0; stationIndex < stationInfoSet.length; stationIndex++) {
+        L.marker([stationInfoSet[stationIndex][1], stationInfoSet[stationIndex][0]])
+      }
+    }
+
+    for (s = 0; s < filteredData.length; s++) {
+      L.marker([filteredData[s][1], filteredData[s][0]]).addTo(map);
+    }
+
+    /* =====================
+
+    End code to make leaflet objects
+    using the filtered data
+
+    ===================== */
+
 
     /* =====================
 
