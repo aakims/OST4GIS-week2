@@ -1,37 +1,40 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <!--stylesheet imports-->
-    <link rel="stylesheet" href="leaflet.css" />
-  </head>
-  <body>
-    <!--left panel-->
-    <div style="position:fixed;left:0px;width:400px">
-    </div>
-    <!--map-->
-    <div id="map" style="position:fixed;right:0px;left:400px;height:100%;">
-    </div>
 
-    <!--javascript imports-->
-    <script src="leaflet.js"></script>
-    <script src="health_centers.js"></script>
+<head>
+  <!--stylesheet imports-->
+  <link rel="stylesheet" href="leaflet.css" />
+</head>
 
-    <!--Your code starts here-->
-    <script>
-      var map = L.map('map', {
-        center: [39.9522, -75.1639],
-        zoom: 14
-      });
-      var Stamen_TonerLite = L.tileLayer('http://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.{ext}', {
-        attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-        subdomains: 'abcd',
-        minZoom: 0,
-        maxZoom: 20,
-        ext: 'png'
-      }).addTo(map);
-    </script>
-    <script>
-      /* =====================
+<body>
+  <!--left panel-->
+  <div style="position:fixed;left:0px;width:400px">
+  </div>
+  <!--map-->
+  <div id="map" style="position:fixed;right:0px;left:400px;height:100%;">
+  </div>
+
+  <!--javascript imports-->
+  <script src="leaflet.js"></script>
+  <script src="health_centers.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore.js"></script>
+
+  <!--Your code starts here-->
+  <script>
+    var map = L.map('map', {
+      center: [39.994178, -75.154586],
+      zoom: 12
+    });
+    var Stamen_TonerLite = L.tileLayer('http://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.{ext}', {
+      attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      subdomains: 'abcd',
+      minZoom: 0,
+      maxZoom: 20,
+      ext: 'png'
+    }).addTo(map);
+  </script>
+  <script>
+  /* =====================
 
       # Week 2 - Assignment
 
@@ -46,30 +49,143 @@
        EXTRA: Some of these locations offer dental services as well. Can you find some way to give dental locations a different icon? (Here's some relevant documentation: http://leafletjs.com/reference.html#icon)
 
        Remember: functions are meant to facilitate code comprehension and reuse. Try to use them to organize your code.
-      ===================== */
+
+    ===================== */
 
 
-      /* =====================
+    /* =====================
 
-      Start code
+    Start code
 
-      ===================== */
+    ===================== */
 
-      var jsonToCsv = function(json) { console.log(json); };
+    // part 1: csv view of json
+
+    var jsonToCsv = function(json) {
+      var masterArray = [];
+      masterArray.push(_.keys(json[0]));
+      _.each(json, function(obj) {
+        masterArray.push(_.values(obj))
+      });
+      console.log("See below for the overview of the dataset:");
+      console.table(masterArray);
+      // other options:
+      // console.log(masterArray);
+      // console.log(JSON.stringify(masterArray));
+    };
+
+    jsonToCsv(healthCenters);
+
+    // part 2: add objects to the map
+
+    // 2.1 check data for missing values
+    var nullList = [],
+      showMeNull = function(jsonObj) {
+        if ((_.isNull(jsonObj.LAT)) || (_.isNull(jsonObj.LNG))) {
+          nullList.push([jsonObj.OBJECTID, jsonObj.LNG, jsonObj.LAT]);
+        }
+      };
+
+    _.each(healthCenters, showMeNull);
+
+    // 2.2 filter centers based on dental service provision
+    var doesDental = function(jsonObj) {
+      jsonObj.DENTAL_SERVICE = jsonObj.DENTAL_PHONE !== 'N/A';
+    };
+
+    _.each(healthCenters, doesDental);
+
+    // 2.3 filter centers based on zipcode values
+    var filterByZip = function(jsonObj) {
+      if (_.contains(_.range(19140, 19150), jsonObj.ZIP)) {
+        return true;
+      } else return false;
+    }
+
+    // 2.4 all filters: no missing values, assign dental service status, then filter by zipcodes
+
+    var applyAllFilters = function(jsonObj) {
+        return !(_.contains(_.each(nullList, _.first), jsonObj.OBJECTID)) &&
+          filterByZip(jsonObj);
+      },
+      filteredData = _.filter(healthCenters, applyAllFilters);
+
+    var dentalCount = _.countBy(filteredData, function(jsonObj) {
+      return jsonObj.DENTAL_SERVICE === true
+    })["true"];
+
+    // filter result logs
+    console.log(
+      `Data Filter Results:
+      ${filteredData.length} (out of ${healthCenters.length} records) health centers are included in the final dataset.
+      Of those ${filteredData.length} in the target area, ${dentalCount} centers offer dental services.
+      ${nullList.length} objects are missing at least LAT or LNG value; call nullList to view.`
+    );
+
+    // LETS MAP
+
+    // object style specifications
+    var popupText = function(jsonObj) {
+        /*
+        // option 1
+        return "<dl><dt>Center Name<dt>"
+        + "<dd>" + jsonObj.NAME + "</dd>"
+        + "<dt>Address</dt>"
+        + "<dd>" + jsonObj.FULL_ADDRESS + "</dd>"
+        + "<dt>Phone Number</dt>"
+        + "<dd>" + jsonObj.PHONE + "</dd>"
+        + "<dt><a href=\"" + jsonObj.WEBSITE + "\">Go To Center Website</a></dt>"
+        + "</dl>";
+        */
+        // option 2
+        return "<h4>" + jsonObj.NAME + "</h4>" +
+          "<ul><li>Address:  " + jsonObj.FULL_ADDRESS + "</li>" +
+          "<li>Phone Number:  " + jsonObj.PHONE + "</li>" +
+          "<li><a href=\"" + jsonObj.WEBSITE + "\">Go to center website</a></li></ul>";
+      },
+      centerIcon = function(jsonObj) {
+        var iconloc = '';
+        if (jsonObj.DENTAL_SERVICE) {
+          iconloc = 'images/marker-icon_healthPlusDental.png';
+        } else {
+          iconloc = 'images/marker-icon_healthCenter.png';
+        }
+        return L.icon({
+          iconUrl: iconloc,
+          iconAnchor: [17, 48]
+        });
+      };
+
+    // create leaflet markers
+    var makeMarkers = function(jsonObj) {
+        return L.marker([jsonObj.LAT, jsonObj.LNG], {
+            icon: centerIcon(jsonObj)
+          })
+          .bindPopup(popupText(jsonObj));
+      },
+
+      groupMarkers = L.layerGroup(),
+
+      // add markers to the map
+      addMarkers = function(json, map) {
+        _.each(json, function(jsonObj) {
+          var jsonMarkers = makeMarkers(jsonObj);
+          groupMarkers.addLayer(jsonMarkers);
+        });
+        groupMarkers.addTo(map);
+      };
 
 
-      var addMarkers = function(map) {};
-
-      /* =====================
-
-      End code
-
-      ===================== */
+    addMarkers(filteredData, map);
 
 
-      jsonToCsv(healthCenters);
-      addMarkers(map);
-    </script>
-    <!--Your code ends here-->
-  </body>
+    /* =====================
+
+    End code
+
+    ===================== */
+  </script>
+
+</body>
+
 </html>
